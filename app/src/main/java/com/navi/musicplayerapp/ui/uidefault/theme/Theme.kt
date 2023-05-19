@@ -1,4 +1,4 @@
-package com.navi.musicplayerapp.ui.theme
+package com.navi.musicplayerapp.ui.uidefault.theme
 
 import android.app.Activity
 import android.os.Build
@@ -16,15 +16,15 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PrimaryColor,
+    secondary = SecondaryColor,
+    tertiary = TertiaryColor
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PrimaryColor,
+    secondary = SecondaryColor,
+    tertiary = TertiaryColor
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

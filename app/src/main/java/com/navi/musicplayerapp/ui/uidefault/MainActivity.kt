@@ -1,4 +1,4 @@
-package com.navi.musicplayerapp
+package com.navi.musicplayerapp.ui.uidefault
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.navi.musicplayerapp.ui.theme.MusicPlayerAppTheme
+import com.navi.musicplayerapp.ui.navigation.GraphStart
+import com.navi.musicplayerapp.ui.uidefault.theme.MusicPlayerAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
+                    GraphStart(activity = this)
                 }
             }
         }
