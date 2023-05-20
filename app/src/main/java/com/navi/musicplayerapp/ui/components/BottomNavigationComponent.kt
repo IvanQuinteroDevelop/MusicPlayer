@@ -15,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.navi.musicplayerapp.ui.navigation.ScreenRoutes
-import com.navi.musicplayerapp.ui.uidefault.theme.*
+import com.navi.musicplayerapp.ui.uidefault.theme.dp16
+import com.navi.musicplayerapp.ui.uidefault.theme.dp24
+import com.navi.musicplayerapp.ui.uidefault.theme.dp32
 
 @Composable
 fun BottomNavigationComponent(navigationController: NavHostController) {
@@ -30,19 +32,14 @@ fun BottomNavigationComponent(navigationController: NavHostController) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(PrimaryColor, TertiaryColor)
-                )
-            )
-            .alpha(0.8f)
-            .padding(dp24)
+            .padding(dp24),
+        contentAlignment = Alignment.BottomStart
     ) {
         NavigationBar(
             Modifier
                 .clip(RoundedCornerShape(dp16))
-                .alpha(0.5f)
-                .background(SecondaryColor)
+                .background(Color.Transparent)
+                .alpha(0.8f)
                 .align(Alignment.BottomCenter)
         ) {
             val listNavigationItem =
