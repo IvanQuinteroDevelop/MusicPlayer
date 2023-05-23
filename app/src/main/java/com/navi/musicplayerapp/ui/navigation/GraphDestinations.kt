@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.composable
 import com.navi.musicplayerapp.ui.screens.FavoriteScreen
 import com.navi.musicplayerapp.ui.screens.HomeScreen
@@ -15,7 +16,7 @@ fun GraphDestinations(navigationController: NavHostController, activity: Activit
     NavHost(navController = navigationController, startDestination = ScreenRoutes.Home.route) {
 
         composable(ScreenRoutes.Home.route) {
-            HomeScreen()
+            HomeScreen(viewModel = hiltViewModel())
         }
 
         composable(ScreenRoutes.Playing.route) {

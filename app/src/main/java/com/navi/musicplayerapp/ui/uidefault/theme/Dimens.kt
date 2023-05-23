@@ -15,6 +15,7 @@ val dp36 = 36.dp
 val sp12 = 12.sp
 val sp14 = 14.sp
 val sp16 = 16.sp
+val sp18 = 18.sp
 val sp24 = 24.sp
 val sp32 = 32.sp
 val sp36 = 36.sp
