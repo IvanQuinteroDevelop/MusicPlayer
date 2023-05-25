@@ -1,6 +1,5 @@
 package com.navi.musicplayerapp.ui.navigation
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,7 +10,7 @@ import com.navi.musicplayerapp.ui.screens.HomeScreen
 import com.navi.musicplayerapp.ui.screens.PlayingScreen
 
 @Composable
-fun GraphDestinations(navigationController: NavHostController, activity: Activity) {
+fun GraphDestinations(navigationController: NavHostController) {
 
     NavHost(navController = navigationController, startDestination = ScreenRoutes.Home.route) {
 

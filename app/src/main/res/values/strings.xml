@@ -2,4 +2,6 @@
     <string name="app_name">Music Player App</string>
     <string name="favorite_label">Favorites</string>
     <string name="trending_now">Trending right now</string>
+    <string name="error_loading_data">Error to load data</string>
+    <string name="error_connection">Error connection</string>
 </resources>

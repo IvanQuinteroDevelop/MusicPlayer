@@ -1,10 +1,14 @@
 package com.navi.musicplayerapp.data.apiservices
 
-import com.navi.musicplayerapp.data.responses.TrackApiResponse
+import com.navi.musicplayerapp.data.responses.GenreApiResponse
+import com.navi.musicplayerapp.data.responses.TracksApiResponse
 import retrofit2.http.GET
 
 interface ApiMusicServices {
 
-    @GET("artist/52/top?limit=20")
-    suspend fun getArtist(): TrackApiResponse
+    @GET("chart")
+    suspend fun getTracks(): TracksApiResponse
+
+    @GET("genre")
+    suspend fun getGenres(): GenreApiResponse
 }

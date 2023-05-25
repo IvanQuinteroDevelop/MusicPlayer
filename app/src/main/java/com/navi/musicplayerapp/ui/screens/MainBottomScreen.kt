@@ -1,7 +1,6 @@
 package com.navi.musicplayerapp.ui.screens
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +21,7 @@ import com.navi.musicplayerapp.ui.uidefault.theme.dp24
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomMainScreen(activity: Activity) {
+fun BottomMainScreen() {
     val navigationController = rememberNavController()
     Scaffold(bottomBar = { BottomNavigationComponent(navigationController) }) {
         Box(
@@ -36,7 +35,7 @@ fun BottomMainScreen(activity: Activity) {
                 .alpha(0.8f)
                 .padding(dp24)
         ) {
-            GraphDestinations(navigationController, activity)
+            GraphDestinations(navigationController)
         }
     }
 }
