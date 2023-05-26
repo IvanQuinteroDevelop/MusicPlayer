@@ -34,7 +34,7 @@ fun FavoriteScreen(viewModel: MusicViewModel) {
     }
 
     Column(Modifier.fillMaxSize().padding(bottom = dp36)) {
-        TitleComponent(text = stringResource(R.string.favorite_label))
+        TitleComponent(text = stringResource(R.string.favorite_label), Modifier.padding(vertical = dp16))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             content = {

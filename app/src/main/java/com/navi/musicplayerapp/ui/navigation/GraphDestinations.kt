@@ -19,7 +19,7 @@ fun GraphDestinations(navigationController: NavHostController) {
         }
 
         composable(ScreenRoutes.Playing.route) {
-            PlayingScreen()
+            PlayingScreen(viewModel = hiltViewModel())
         }
 
         composable(ScreenRoutes.Favorite.route) {

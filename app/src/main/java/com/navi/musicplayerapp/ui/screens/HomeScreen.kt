@@ -76,7 +76,7 @@ fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>, viewModel: MusicViewMo
             val trackList = (tracksStatus).data as List<TrackModel>? ?: emptyList()
 
             Column {
-                TitleComponent(text = stringResource(R.string.trending_now))
+                TitleComponent(text = stringResource(R.string.trending_now), Modifier.padding(vertical = dp16))
                 LazyRow(modifier = Modifier.padding(vertical = dp16),
                     horizontalArrangement = Arrangement.spacedBy(dp16),
                     content = {

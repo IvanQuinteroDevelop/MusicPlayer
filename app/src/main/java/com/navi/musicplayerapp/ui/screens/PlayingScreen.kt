@@ -1,9 +1,82 @@
 package com.navi.musicplayerapp.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.navi.musicplayerapp.domain.entity.TrackEntity
+import com.navi.musicplayerapp.ui.MusicViewModel
 import com.navi.musicplayerapp.ui.components.TitleComponent
+import com.navi.musicplayerapp.ui.uidefault.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayingScreen() {
-    TitleComponent(text = "Playing")
+fun PlayingScreen(viewModel: MusicViewModel) {
+    val trackEntity = TrackEntity(2L, "Resistance", 30, "preview", "Muse", "cover")
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(dp8), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Card(
+            modifier = Modifier
+                .padding(dp16)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(dp24),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(trackEntity.cover),
+                contentDescription = "Image track",
+                modifier = Modifier
+                    .height(360.dp)
+                    .fillMaxWidth()
+            )
+        }
+        TitleComponent(text = trackEntity.title, modifier = Modifier.padding(dp2))
+        Text(text = trackEntity.artistName, fontSize = sp24)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(dp24),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.KeyboardArrowLeft,
+                contentDescription = "Previous track",
+                tint = Color.White,
+                modifier = Modifier.size(dp48)
+            )
+            LargeFloatingActionButton(
+                onClick = {},
+                shape = CircleShape,
+                containerColor = Color.White,
+                modifier = Modifier.padding(dp8)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PlayArrow,
+                    contentDescription = "Play Track",
+                    modifier = Modifier.size(dp48)
+                )
+            }
+            Icon(
+                Icons.Filled.KeyboardArrowRight,
+                contentDescription = "Next track",
+                tint = Color.White,
+                modifier = Modifier.size(dp48)
+            )
+        }
+    }
 }
