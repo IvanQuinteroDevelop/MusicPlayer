@@ -13,47 +13,51 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.navi.musicplayerapp.R
+import com.navi.musicplayerapp.domain.entity.TrackEntity
+import com.navi.musicplayerapp.ui.MusicViewModel
 import com.navi.musicplayerapp.ui.components.TitleComponent
-import com.navi.musicplayerapp.ui.uidefault.theme.dp16
-import com.navi.musicplayerapp.ui.uidefault.theme.dp8
+import com.navi.musicplayerapp.ui.uidefault.theme.*
 
 @Composable
-fun FavoriteScreen() {
-    val categories = listOf(
-        "Rock",
-        "Hip hop",
-        "Alternative",
-        "Electric",
-        "Reggae",
-        "Popular",
-        "more music",
-        "Rock",
-        "Hip hop",
-        "Alternative",
-        "Electric",
-        "Reggae",
-        "Popular",
-        "more music"
-    )
-    Column(Modifier.fillMaxSize()) {
+fun FavoriteScreen(viewModel: MusicViewModel) {
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    var favoriteTracks: MutableList<TrackEntity> = mutableListOf()
+    viewModel.favoriteTracks.observe(lifeCycleOwner) {
+        favoriteTracks = it as MutableList<TrackEntity>
+    }
+
+    Column(Modifier.fillMaxSize().padding(bottom = dp36)) {
         TitleComponent(text = stringResource(R.string.favorite_label))
-        LazyVerticalGrid(columns = GridCells.Fixed(2), content = {
-            items(categories){
-                Column(Modifier.padding(dp8)) {
-                    Image(
-                        painterResource(id = R.drawable.ic_launcher_background),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(170.dp)
-                            .clip(RoundedCornerShape(dp16))
-                    )
-                    Text(text = it)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            content = {
+                items(favoriteTracks) {
+                    Column(Modifier.padding(dp8)) {
+                        Image(
+                            painter = rememberAsyncImagePainter(it.cover),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(170.dp)
+                                .padding(dp4)
+                                .clip(RoundedCornerShape(dp24))
+                        )
+                        Text(text = it.title, fontSize = sp18, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = it.artistName,
+                            fontSize = sp14,
+                            color = Color.LightGray,
+                            modifier = Modifier.padding(dp2)
+                        )
+                    }
                 }
             }
-        })
+        )
     }
 }

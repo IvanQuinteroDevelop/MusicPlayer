@@ -1,6 +1,7 @@
 package com.navi.musicplayerapp.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -8,17 +9,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.navi.musicplayerapp.R
 import com.navi.musicplayerapp.data.responses.ApiResponseStatus
+import com.navi.musicplayerapp.domain.entity.TrackEntity
 import com.navi.musicplayerapp.domain.model.Genre
 import com.navi.musicplayerapp.domain.model.TrackModel
 import com.navi.musicplayerapp.ui.MusicViewModel
@@ -40,28 +47,33 @@ fun HomeScreen(viewModel: MusicViewModel) {
     val genresStatus by viewModel.genresStatus.collectAsState()
 
     Column(
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = dp48)
     ) {
-        TrendingRowList(tracksStatus)
+        TrendingRowList(tracksStatus, viewModel)
         Spacer(modifier = Modifier.height(dp24))
         GenresRowList(genresStatus)
         Spacer(modifier = Modifier.height(dp16))
-        //BottomList()
-
+        // optional status while fiz genre
+        when (tracksStatus) {
+            is ApiResponseStatus.Loading -> LoadingComponent()
+            is ApiResponseStatus.Error -> ErrorScreen(tracksStatus as ApiResponseStatus.Error<Any>)
+            is ApiResponseStatus.Success -> {
+                val trackList = (tracksStatus as ApiResponseStatus.Success).data as List<TrackModel>
+                BottomList(trackList, viewModel)
+            }
+        }
     }
 }
 
 @Composable
-fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>) {
+fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>, viewModel: MusicViewModel) {
     when (tracksStatus) {
         is ApiResponseStatus.Loading -> LoadingComponent()
-        is ApiResponseStatus.Error -> {
-            val errorStatus = tracksStatus as ApiResponseStatus.Error
-            val errorMessage = errorStatus.messageId
-            Text(text = stringResource(id = errorMessage))
-        }
+        is ApiResponseStatus.Error -> ErrorScreen(tracksStatus)
         is ApiResponseStatus.Success -> {
-            val trackList = (tracksStatus).data as List<TrackModel>
+            val trackList = (tracksStatus).data as List<TrackModel>? ?: emptyList()
 
             Column {
                 TitleComponent(text = stringResource(R.string.trending_now))
@@ -73,10 +85,10 @@ fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>) {
                                 painter = rememberAsyncImagePainter(it.album.cover),
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null,
-                                alpha = 0.8f,
+                                alpha = 0.9f,
                                 modifier = Modifier
-                                    .size(180.dp)
-                                    .clip(RoundedCornerShape(dp16))
+                                    .size(height = 170.dp, width = 185.dp)
+                                    .clip(RoundedCornerShape(dp24))
                             )
                         }
                     }
@@ -89,10 +101,10 @@ fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>) {
 @Composable
 fun GenresRowList(genresStatus: ApiResponseStatus<Any>) {
     when (genresStatus) {
-        is ApiResponseStatus.Error -> TODO()
+        is ApiResponseStatus.Error -> { ErrorScreen(genresStatus) }
         is ApiResponseStatus.Loading -> LoadingComponent()
         is ApiResponseStatus.Success -> {
-            val genreList = (genresStatus).data as List<Genre>
+            val genreList = (genresStatus).data as List<Genre>? ?: emptyList()
             LazyRow(modifier = Modifier,
                 horizontalArrangement = Arrangement.spacedBy(dp12),
                 content = {
@@ -107,20 +119,28 @@ fun GenresRowList(genresStatus: ApiResponseStatus<Any>) {
 }
 
 @Composable
-fun BottomList(trackList: List<TrackModel>) {
+fun BottomList(trackList: List<TrackModel>, viewModel: MusicViewModel) {
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    var favoriteTracks: MutableList<TrackEntity> = mutableListOf()
+    viewModel.favoriteTracks.observe(lifeCycleOwner) {
+        favoriteTracks = it as MutableList<TrackEntity>
+    }
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         state = rememberLazyListState(),
         content = {
-            items(trackList) {
-                ItemTrack(it)
+            items(trackList) { track ->
+                ItemTrack(track, viewModel, favoriteTracks)
             }
         }
     )
 }
 
 @Composable
-fun ItemTrack(track: TrackModel) {
+fun ItemTrack(track: TrackModel, viewModel: MusicViewModel, favoriteTracks: MutableList<TrackEntity>) {
+    var isFavorite by rememberSaveable {
+        mutableStateOf(favoriteTracks.any { favoriteTrack -> track.id == favoriteTrack.id })
+    }
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -143,7 +163,7 @@ fun ItemTrack(track: TrackModel) {
             Text(
                 text = track.titleShort,
                 fontSize = sp18,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
@@ -155,6 +175,25 @@ fun ItemTrack(track: TrackModel) {
             )
         }
         Spacer(modifier = Modifier.padding(dp8))
-        Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Add to Favorite")
+        Icon(
+            if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            contentDescription = "Favorite button",
+            tint = Color.White,
+            modifier = Modifier.clickable {
+                if (isFavorite) {
+                    viewModel.removeFavoriteTrack(track)
+                } else {
+                    viewModel.addFavoriteTrack(track)
+                }
+                isFavorite = !isFavorite
+            }
+        )
+    }
+}
+
+@Composable
+fun ErrorScreen(status: ApiResponseStatus.Error<Any>) {
+    Box(Modifier.fillMaxSize()) {
+        Text(text = stringResource(id = (status).messageId), fontSize = sp18)
     }
 }

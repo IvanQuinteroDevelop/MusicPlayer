@@ -3,6 +3,7 @@ package com.navi.musicplayerapp.ui.uidefault.theme
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+val dp2 = 2.dp
 val dp4 = 4.dp
 val dp8 = 8.dp
 val dp12 = 12.dp
@@ -11,6 +12,7 @@ val dp24 = 24.dp
 val dp28 = 28.dp
 val dp32 = 32.dp
 val dp36 = 36.dp
+val dp48 = 48.dp
 
 val sp12 = 12.sp
 val sp14 = 14.sp

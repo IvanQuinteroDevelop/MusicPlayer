@@ -1,10 +1,13 @@
 package com.navi.musicplayerapp.ui
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.navi.musicplayerapp.data.responses.ApiResponseStatus
-import com.navi.musicplayerapp.domain.usecase.GetGenresUseCase
-import com.navi.musicplayerapp.domain.usecase.GetTracksUseCase
+import com.navi.musicplayerapp.domain.entity.TrackEntity
+import com.navi.musicplayerapp.domain.model.TrackModel
+import com.navi.musicplayerapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +17,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MusicViewModel @Inject constructor(
     private val getTracksUseCase: GetTracksUseCase,
-    private val getGenresUseCase: GetGenresUseCase
+    private val getGenresUseCase: GetGenresUseCase,
+    private val addTrackUseCase: AddTrackUseCase,
+    private val getFavoriteTracksUseCase: GetFavoriteTracksUseCase,
+    private val removeFavoriteTrackUseCase: RemoveFavoriteTrackUseCase,
 ) : ViewModel() {
 
     private val _tracksStatus =
@@ -25,10 +31,14 @@ class MusicViewModel @Inject constructor(
         MutableStateFlow<ApiResponseStatus<Any>>(ApiResponseStatus.Loading())
     val genresStatus = _genresStatus.asStateFlow()
 
+    private val _favoriteTracks = MutableLiveData<List<TrackEntity>>()
+    val favoriteTracks: LiveData<List<TrackEntity>> get() = _favoriteTracks
+
     init {
         _tracksStatus.value = ApiResponseStatus.Loading()
         getTrackList()
         getGenres()
+        getFavoriteList()
     }
 
     private fun getGenres() {
@@ -40,6 +50,24 @@ class MusicViewModel @Inject constructor(
     private fun getTrackList() {
         viewModelScope.launch {
             (getTracksUseCase.invoke()).also { _tracksStatus.value = it }
+        }
+    }
+
+    fun addFavoriteTrack(trackModel: TrackModel) {
+        viewModelScope.launch {
+            addTrackUseCase.invoke(trackModel)
+        }
+    }
+
+    fun removeFavoriteTrack(trackModel: TrackModel) {
+        viewModelScope.launch {
+            removeFavoriteTrackUseCase.invoke(trackModel)
+        }
+    }
+
+    private fun getFavoriteList() {
+        viewModelScope.launch {
+            _favoriteTracks.value = getFavoriteTracksUseCase.invoke()
         }
     }
 }
