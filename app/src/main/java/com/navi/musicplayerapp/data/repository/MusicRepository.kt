@@ -6,6 +6,7 @@ import com.navi.musicplayerapp.data.database.MusicDao
 import com.navi.musicplayerapp.data.mapper.toTrackEntity
 import com.navi.musicplayerapp.data.responses.ApiResponseStatus
 import com.navi.musicplayerapp.domain.entity.TrackEntity
+import com.navi.musicplayerapp.domain.model.Artist
 import com.navi.musicplayerapp.domain.model.Genre
 import com.navi.musicplayerapp.domain.model.TrackModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,6 +42,33 @@ class MusicRepository @Inject constructor(
                 ApiResponseStatus.Error(R.string.error_loading_data)
             } catch (e: UnknownHostException) {
                 ApiResponseStatus.Error(R.string.error_connection)
+            }
+        }
+    }
+
+    suspend fun getTracksByGenreId(genreId: String): ApiResponseStatus<List<TrackModel>> {
+        return withContext(dispatcher) {
+            try {
+                val artists: List<Artist> = getArtistsByGenre(genreId)
+                val tracks = ArrayList<TrackModel>()
+                artists.forEach { artist ->
+                    tracks.add(apiMusicServices.getTracksByArtist(artist.id).data.first())
+                }
+                ApiResponseStatus.Success(tracks as List<TrackModel>)
+            } catch (e: Exception) {
+                ApiResponseStatus.Error(R.string.error_loading_data)
+            } catch (e: UnknownHostException) {
+                ApiResponseStatus.Error(R.string.error_connection)
+            }
+        }
+    }
+
+    private suspend fun getArtistsByGenre(genreId: String): List<Artist> {
+        return withContext(dispatcher) {
+            try {
+                apiMusicServices.getArtistByGenre(genreId).data
+            } catch (e: Exception) {
+                emptyList()
             }
         }
     }

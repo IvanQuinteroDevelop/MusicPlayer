@@ -21,6 +21,7 @@ class MusicViewModel @Inject constructor(
     private val addTrackUseCase: AddTrackUseCase,
     private val getFavoriteTracksUseCase: GetFavoriteTracksUseCase,
     private val removeFavoriteTrackUseCase: RemoveFavoriteTrackUseCase,
+    private val getTracksByGenreUseCase: GetTracksByGenreUseCase,
 ) : ViewModel() {
 
     private val _tracksStatus =
@@ -30,6 +31,10 @@ class MusicViewModel @Inject constructor(
     private val _genresStatus =
         MutableStateFlow<ApiResponseStatus<Any>>(ApiResponseStatus.Loading())
     val genresStatus = _genresStatus.asStateFlow()
+
+    private val _tracksByGenreStatus =
+        MutableStateFlow<ApiResponseStatus<Any>>(ApiResponseStatus.Loading())
+    val tracksByGenreStatus = _tracksByGenreStatus.asStateFlow()
 
     private val _favoriteTracks = MutableLiveData<List<TrackEntity>>()
     val favoriteTracks: LiveData<List<TrackEntity>> get() = _favoriteTracks
@@ -50,6 +55,13 @@ class MusicViewModel @Inject constructor(
     private fun getTrackList() {
         viewModelScope.launch {
             (getTracksUseCase.invoke()).also { _tracksStatus.value = it }
+        }
+    }
+
+    fun getTracksByGenre(genreId: String) {
+        viewModelScope.launch {
+            _tracksByGenreStatus.value = ApiResponseStatus.Loading()
+            (getTracksByGenreUseCase.invoke(genreId)).also { _tracksByGenreStatus.value = it }
         }
     }
 
