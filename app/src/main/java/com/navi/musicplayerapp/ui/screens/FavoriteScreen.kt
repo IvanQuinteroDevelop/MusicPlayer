@@ -37,6 +37,7 @@ fun FavoriteScreen(viewModel: MusicViewModel) {
         TitleComponent(text = stringResource(R.string.favorite_label), Modifier.padding(vertical = dp16))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
+            modifier = Modifier.padding(bottom = dp24),
             content = {
                 items(favoriteTracks) {
                     Column(Modifier.padding(dp8)) {

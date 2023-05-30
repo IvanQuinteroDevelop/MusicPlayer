@@ -10,6 +10,8 @@ import com.navi.musicplayerapp.domain.model.Artist
 import com.navi.musicplayerapp.domain.model.Genre
 import com.navi.musicplayerapp.domain.model.TrackModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -50,11 +52,18 @@ class MusicRepository @Inject constructor(
         return withContext(dispatcher) {
             try {
                 val artists: List<Artist> = getArtistsByGenre(genreId)
-                val tracks = ArrayList<TrackModel>()
-                artists.forEach { artist ->
-                    tracks.add(apiMusicServices.getTracksByArtist(artist.id).data.first())
+                val trackDeferredList = artists.map { artist ->
+                    async {
+                        val response = apiMusicServices.getTracksByArtist(artist.id)
+                        response.data?.firstOrNull()
+                    }
                 }
-                ApiResponseStatus.Success(tracks as List<TrackModel>)
+                val trackList = trackDeferredList.awaitAll().filterNotNull()
+                if (trackList.isNotEmpty()) {
+                    ApiResponseStatus.Success(trackList)
+                } else {
+                    ApiResponseStatus.Error(R.string.error_loading_data)
+                }
             } catch (e: Exception) {
                 ApiResponseStatus.Error(R.string.error_loading_data)
             } catch (e: UnknownHostException) {

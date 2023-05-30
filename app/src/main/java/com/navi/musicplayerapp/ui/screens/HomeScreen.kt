@@ -151,7 +151,7 @@ fun BottomList(viewModel: MusicViewModel) {
                 ((tracksStatus as ApiResponseStatus.Success<Any>).data as List<TrackModel>?
                     ?: emptyList())
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = dp24),
                 state = rememberLazyListState(),
                 content = {
                     items(trackList) { track ->

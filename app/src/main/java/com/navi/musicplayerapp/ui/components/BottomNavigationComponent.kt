@@ -20,8 +20,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.navi.musicplayerapp.ui.navigation.ScreenRoutes
 import com.navi.musicplayerapp.ui.uidefault.theme.dp16
-import com.navi.musicplayerapp.ui.uidefault.theme.dp24
 import com.navi.musicplayerapp.ui.uidefault.theme.dp32
+import com.navi.musicplayerapp.ui.uidefault.theme.dp8
 
 @Composable
 fun BottomNavigationComponent(navigationController: NavHostController) {
@@ -32,7 +32,7 @@ fun BottomNavigationComponent(navigationController: NavHostController) {
     Box(
         Modifier
             .fillMaxSize()
-            .padding(dp24),
+            .padding(dp16),
         contentAlignment = Alignment.BottomStart
     ) {
         NavigationBar(
