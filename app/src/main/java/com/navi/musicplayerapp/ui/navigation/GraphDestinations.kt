@@ -23,7 +23,7 @@ fun GraphDestinations(navigationController: NavHostController) {
         }
 
         composable(ScreenRoutes.Favorite.route) {
-            FavoriteScreen(viewModel = hiltViewModel())
+            FavoriteScreen(viewModel = hiltViewModel(), navigationController)
         }
     }
 }

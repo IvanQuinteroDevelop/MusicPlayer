@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.navi.musicplayerapp.data.responses.ApiResponseStatus
 import com.navi.musicplayerapp.domain.entity.TrackEntity
 import com.navi.musicplayerapp.domain.model.TrackModel
+import com.navi.musicplayerapp.domain.player.MusicPlayer
 import com.navi.musicplayerapp.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,11 @@ class MusicViewModel @Inject constructor(
     private val getFavoriteTracksUseCase: GetFavoriteTracksUseCase,
     private val removeFavoriteTrackUseCase: RemoveFavoriteTrackUseCase,
     private val getTracksByGenreUseCase: GetTracksByGenreUseCase,
+    private val musicPlayer: MusicPlayer
 ) : ViewModel() {
+
+    private val _currentTrack = MutableLiveData<TrackEntity>()
+    val currentTrack: LiveData<TrackEntity> = _currentTrack
 
     private val _tracksStatus =
         MutableStateFlow<ApiResponseStatus<Any>>(ApiResponseStatus.Loading())
@@ -44,6 +49,18 @@ class MusicViewModel @Inject constructor(
         getTrackList()
         getGenres()
         getFavoriteList()
+        musicPlayer.startPlayer()
+        setTracks(_favoriteTracks.value ?: emptyList())
+    }
+
+    fun playTrack(trackEntity: TrackEntity) {
+        _currentTrack.value = trackEntity
+        musicPlayer.startTrack(trackEntity.id.toString())
+        musicPlayer.resumeTrack()
+    }
+
+    fun setTracks(tracks: List<TrackEntity>) {
+        musicPlayer.setTracks(tracks)
     }
 
     private fun getGenres() {
@@ -80,6 +97,9 @@ class MusicViewModel @Inject constructor(
     private fun getFavoriteList() {
         viewModelScope.launch {
             _favoriteTracks.value = getFavoriteTracksUseCase.invoke()
+            if (_favoriteTracks.isInitialized) {
+                _currentTrack.value = _favoriteTracks.value?.first()
+            }
         }
     }
 }

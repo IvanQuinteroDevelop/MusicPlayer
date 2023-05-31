@@ -1,6 +1,7 @@
 package com.navi.musicplayerapp.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,20 +19,23 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.navi.musicplayerapp.R
 import com.navi.musicplayerapp.domain.entity.TrackEntity
 import com.navi.musicplayerapp.ui.MusicViewModel
 import com.navi.musicplayerapp.ui.components.TitleComponent
+import com.navi.musicplayerapp.ui.navigation.ScreenRoutes
 import com.navi.musicplayerapp.ui.uidefault.theme.*
 
 @Composable
-fun FavoriteScreen(viewModel: MusicViewModel) {
+fun FavoriteScreen(viewModel: MusicViewModel, navigationController: NavHostController) {
     val lifeCycleOwner = LocalLifecycleOwner.current
     var favoriteTracks: MutableList<TrackEntity> = mutableListOf()
     viewModel.favoriteTracks.observe(lifeCycleOwner) {
         favoriteTracks = it as MutableList<TrackEntity>
     }
+    viewModel.setTracks(favoriteTracks)
 
     Column(Modifier.fillMaxSize().padding(bottom = dp36)) {
         TitleComponent(text = stringResource(R.string.favorite_label), Modifier.padding(vertical = dp16))
@@ -48,6 +52,10 @@ fun FavoriteScreen(viewModel: MusicViewModel) {
                                 .size(170.dp)
                                 .padding(dp4)
                                 .clip(RoundedCornerShape(dp24))
+                                .clickable {
+                                    viewModel.playTrack(it)
+                                    navigationController.navigate(ScreenRoutes.Playing.route)
+                                }
                         )
                         Text(text = it.title, fontSize = sp18, fontWeight = FontWeight.Bold)
                         Text(

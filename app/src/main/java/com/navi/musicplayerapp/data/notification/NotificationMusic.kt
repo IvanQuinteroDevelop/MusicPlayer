@@ -1,16 +1,13 @@
 package com.navi.musicplayerapp.data.notification
 
-import android.app.Application
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.navi.musicplayerapp.R
+import com.navi.musicplayerapp.data.broadcast.BroadcastMusicReceiver
 import com.navi.musicplayerapp.data.utils.Constants.ACTION_NEXT
 import com.navi.musicplayerapp.data.utils.Constants.ACTION_PAUSE
 import com.navi.musicplayerapp.data.utils.Constants.ACTION_PLAY
@@ -47,10 +44,10 @@ fun notificationMusic(
         0, notificationIntent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    remoteViews.setOnClickPendingIntent(R.id.play, broadcastPendingIntent(application, ACTION_PLAY.hashCode()))
-    remoteViews.setOnClickPendingIntent(R.id.pause, broadcastPendingIntent(application, ACTION_PAUSE.hashCode()))
-    remoteViews.setOnClickPendingIntent(R.id.next, broadcastPendingIntent(application, ACTION_NEXT.hashCode()))
-    remoteViews.setOnClickPendingIntent(R.id.previous, broadcastPendingIntent(application, ACTION_PREVIOUS.hashCode()))
+    remoteViews.setOnClickPendingIntent(R.id.play, broadcastPendingIntent(application, ACTION_PLAY))
+    remoteViews.setOnClickPendingIntent(R.id.pause, broadcastPendingIntent(application, ACTION_PAUSE))
+    remoteViews.setOnClickPendingIntent(R.id.next, broadcastPendingIntent(application, ACTION_NEXT))
+    remoteViews.setOnClickPendingIntent(R.id.previous, broadcastPendingIntent(application, ACTION_PREVIOUS))
 
     return NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.ic_launcher_background)
@@ -75,8 +72,8 @@ private fun createNotificationChannel(context: Context) {
     notificationManager?.createNotificationChannel(channel)
 }
 
-private fun broadcastPendingIntent(application: Application, actionCode: Int): PendingIntent =
-    PendingIntent.getBroadcast(application, actionCode, Intent(
-        // TODO() Broadcast and putExtra action
-    ), PendingIntent.FLAG_IMMUTABLE)
+private fun broadcastPendingIntent(application: Application, actionCode: String): PendingIntent =
+    PendingIntent.getBroadcast(application, 0, Intent(
+        application, BroadcastMusicReceiver::class.java
+    ).apply { this.action = actionCode }, PendingIntent.FLAG_IMMUTABLE)
 

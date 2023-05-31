@@ -12,6 +12,7 @@ object Constants {
     const val ACTION_NEXT = "com.action.next"
     const val ACTION_PREVIOUS = "com.action.previous"
     const val ACTION_RESUME = "com.action.resume"
+    const val EXTRA_TRACK = "track_extra"
 
     @JvmField val MUSIC_NOTIFICATION_CHANNEL_NAME: CharSequence = "Notification Music"
     const val CHANNEL_ID = "music_channel"
