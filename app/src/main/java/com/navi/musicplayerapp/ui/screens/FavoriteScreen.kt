@@ -23,22 +23,33 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.navi.musicplayerapp.R
 import com.navi.musicplayerapp.domain.entity.TrackEntity
-import com.navi.musicplayerapp.ui.MusicViewModel
+import com.navi.musicplayerapp.ui.viewmodel.MusicViewModel
 import com.navi.musicplayerapp.ui.components.TitleComponent
 import com.navi.musicplayerapp.ui.navigation.ScreenRoutes
 import com.navi.musicplayerapp.ui.uidefault.theme.*
+import com.navi.musicplayerapp.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun FavoriteScreen(viewModel: MusicViewModel, navigationController: NavHostController) {
+fun FavoriteScreen(
+    musicViewModel: MusicViewModel,
+    playerViewModel: PlayerViewModel,
+    navigationController: NavHostController
+) {
     val lifeCycleOwner = LocalLifecycleOwner.current
     var favoriteTracks: MutableList<TrackEntity> = mutableListOf()
-    viewModel.favoriteTracks.observe(lifeCycleOwner) {
+    musicViewModel.favoriteTracks.observe(lifeCycleOwner) {
         favoriteTracks = it as MutableList<TrackEntity>
+        playerViewModel.setTracks(favoriteTracks)
     }
-    viewModel.setTracks(favoriteTracks)
 
-    Column(Modifier.fillMaxSize().padding(bottom = dp36)) {
-        TitleComponent(text = stringResource(R.string.favorite_label), Modifier.padding(vertical = dp16))
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = dp36)) {
+        TitleComponent(
+            text = stringResource(R.string.favorite_label),
+            Modifier.padding(vertical = dp16)
+        )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.padding(bottom = dp24),
@@ -53,7 +64,7 @@ fun FavoriteScreen(viewModel: MusicViewModel, navigationController: NavHostContr
                                 .padding(dp4)
                                 .clip(RoundedCornerShape(dp24))
                                 .clickable {
-                                    viewModel.playTrack(it)
+                                    playerViewModel.playTrack(it)
                                     navigationController.navigate(ScreenRoutes.Playing.route)
                                 }
                         )

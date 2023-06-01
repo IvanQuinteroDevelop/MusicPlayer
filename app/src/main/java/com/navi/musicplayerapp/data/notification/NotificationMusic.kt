@@ -41,7 +41,7 @@ fun notificationMusic(
 
     val pendingIntent = PendingIntent.getActivity(
         context,
-        0, notificationIntent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        0, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
     remoteViews.setOnClickPendingIntent(R.id.play, broadcastPendingIntent(application, ACTION_PLAY))
@@ -61,19 +61,18 @@ fun notificationMusic(
 
 private fun createNotificationChannel(context: Context) {
     val name = MUSIC_NOTIFICATION_CHANNEL_NAME
-    val importance = NotificationManager.IMPORTANCE_HIGH
+    val importance = NotificationManager.IMPORTANCE_NONE
 
     val channel = NotificationChannel(CHANNEL_ID, name, importance)
 
-    // add channel
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
 
     notificationManager?.createNotificationChannel(channel)
 }
 
-private fun broadcastPendingIntent(application: Application, actionCode: String): PendingIntent =
+private fun broadcastPendingIntent(application: Application, action: String): PendingIntent =
     PendingIntent.getBroadcast(application, 0, Intent(
         application, BroadcastMusicReceiver::class.java
-    ).apply { this.action = actionCode }, PendingIntent.FLAG_IMMUTABLE)
+    ).apply { this.action = action }, PendingIntent.FLAG_IMMUTABLE)
 

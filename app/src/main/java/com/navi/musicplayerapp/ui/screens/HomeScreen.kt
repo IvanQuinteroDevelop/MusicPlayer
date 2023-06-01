@@ -25,43 +25,57 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.navi.musicplayerapp.R
+import com.navi.musicplayerapp.data.mapper.toTrackEntity
+import com.navi.musicplayerapp.data.mapper.toTrackEntityList
 import com.navi.musicplayerapp.data.responses.ApiResponseStatus
 import com.navi.musicplayerapp.domain.entity.TrackEntity
 import com.navi.musicplayerapp.domain.model.Genre
 import com.navi.musicplayerapp.domain.model.TrackModel
-import com.navi.musicplayerapp.ui.MusicViewModel
+import com.navi.musicplayerapp.ui.viewmodel.MusicViewModel
 import com.navi.musicplayerapp.ui.components.LoadingComponent
 import com.navi.musicplayerapp.ui.components.TitleComponent
+import com.navi.musicplayerapp.ui.navigation.ScreenRoutes
 import com.navi.musicplayerapp.ui.uidefault.theme.*
+import com.navi.musicplayerapp.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun HomeScreen(viewModel: MusicViewModel) {
+fun HomeScreen(
+    musicViewModel: MusicViewModel,
+    playerViewModel: PlayerViewModel,
+    navigationController: NavHostController
+) {
 
-    val tracksStatus by viewModel.tracksStatus.collectAsState()
-    val genresStatus by viewModel.genresStatus.collectAsState()
+    val tracksStatus by musicViewModel.tracksStatus.collectAsState()
+    val genresStatus by musicViewModel.genresStatus.collectAsState()
 
     Column(
         Modifier
             .fillMaxSize()
             .padding(bottom = dp48)
     ) {
-        TrendingRowList(tracksStatus)
+        TrendingRowList(tracksStatus, playerViewModel, navigationController)
         Spacer(modifier = Modifier.height(dp24))
-        GenresRowList(genresStatus, viewModel)
+        GenresRowList(genresStatus, musicViewModel)
         Spacer(modifier = Modifier.height(dp16))
-        BottomList(viewModel)
+        BottomList(musicViewModel, playerViewModel, navigationController)
     }
 }
 
 @Composable
-fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>) {
+fun TrendingRowList(
+    tracksStatus: ApiResponseStatus<Any>,
+    playerViewModel: PlayerViewModel,
+    navigationController: NavHostController
+) {
     when (tracksStatus) {
         is ApiResponseStatus.Loading -> LoadingComponent()
         is ApiResponseStatus.Error -> ErrorScreen(tracksStatus)
         is ApiResponseStatus.Success -> {
             val trackList = (tracksStatus).data as List<TrackModel>? ?: emptyList()
+            playerViewModel.setTracks(trackList.toTrackEntityList())
 
             Column {
                 TitleComponent(
@@ -71,15 +85,19 @@ fun TrendingRowList(tracksStatus: ApiResponseStatus<Any>) {
                 LazyRow(modifier = Modifier.padding(vertical = dp16),
                     horizontalArrangement = Arrangement.spacedBy(dp16),
                     content = {
-                        items(trackList) {
+                        items(trackList) { track ->
                             Image(
-                                painter = rememberAsyncImagePainter(it.album.cover),
+                                painter = rememberAsyncImagePainter(track.album.cover),
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null,
                                 alpha = 0.9f,
                                 modifier = Modifier
                                     .size(height = 170.dp, width = 185.dp)
                                     .clip(RoundedCornerShape(dp24))
+                                    .clickable {
+                                        playerViewModel.playTrack(track.toTrackEntity())
+                                        navigationController.navigate(ScreenRoutes.Playing.route)
+                                    }
                             )
                         }
                     }
@@ -136,11 +154,15 @@ fun GenresRowList(genresStatus: ApiResponseStatus<Any>, viewModel: MusicViewMode
 }
 
 @Composable
-fun BottomList(viewModel: MusicViewModel) {
+fun BottomList(
+    musicViewModel: MusicViewModel,
+    playerViewModel: PlayerViewModel,
+    navigationController: NavHostController
+) {
     val lifeCycleOwner = LocalLifecycleOwner.current
-    val tracksStatus by viewModel.tracksByGenreStatus.collectAsState()
+    val tracksStatus by musicViewModel.tracksByGenreStatus.collectAsState()
     var favoriteTracks: MutableList<TrackEntity> = mutableListOf()
-    viewModel.favoriteTracks.observe(lifeCycleOwner) {
+    musicViewModel.favoriteTracks.observe(lifeCycleOwner) {
         favoriteTracks = it as MutableList<TrackEntity>
     }
     when (tracksStatus) {
@@ -150,12 +172,13 @@ fun BottomList(viewModel: MusicViewModel) {
             val trackList =
                 ((tracksStatus as ApiResponseStatus.Success<Any>).data as List<TrackModel>?
                     ?: emptyList())
+            playerViewModel.setTracks(trackList.toTrackEntityList())
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().padding(bottom = dp24),
                 state = rememberLazyListState(),
                 content = {
                     items(trackList) { track ->
-                        ItemTrack(track, viewModel, favoriteTracks)
+                        ItemTrack(track, musicViewModel, playerViewModel, favoriteTracks, navigationController)
                     }
                 }
             )
@@ -168,7 +191,9 @@ fun BottomList(viewModel: MusicViewModel) {
 fun ItemTrack(
     track: TrackModel,
     viewModel: MusicViewModel,
-    favoriteTracks: MutableList<TrackEntity>
+    playerViewModel: PlayerViewModel,
+    favoriteTracks: MutableList<TrackEntity>,
+    navigationController: NavHostController
 ) {
     var isFavorite by rememberSaveable {
         mutableStateOf(favoriteTracks.any { favoriteTrack -> track.id == favoriteTrack.id })
@@ -191,6 +216,10 @@ fun ItemTrack(
                 .weight(1f)
                 .align(Alignment.CenterVertically)
                 .padding(dp4)
+                .clickable {
+                    playerViewModel.playTrack(track.toTrackEntity())
+                    navigationController.navigate(ScreenRoutes.Playing.route)
+                }
         ) {
             Text(
                 text = track.titleShort,

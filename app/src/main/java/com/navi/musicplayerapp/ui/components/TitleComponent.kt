@@ -4,6 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import com.navi.musicplayerapp.ui.uidefault.theme.sp32
 
 @Composable
@@ -12,6 +13,8 @@ fun TitleComponent(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = sp32,
         fontWeight = FontWeight.ExtraBold,
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
         modifier = modifier
     )
 }

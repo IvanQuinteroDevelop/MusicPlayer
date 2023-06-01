@@ -1,6 +1,5 @@
 package com.navi.musicplayerapp.data.service
 
-import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.media.AudioAttributes
@@ -22,7 +21,7 @@ import com.navi.musicplayerapp.domain.entity.TrackEntity
 
 class MusicService : Service(), MediaPlayer.OnPreparedListener {
 
-    private val binder = Binder()
+    private val binder = ServiceBinder()
     private var mediaPlayer: MediaPlayer? = null
     private var currentPlayPosition = 0
     private var isPaused = false
@@ -34,6 +33,10 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
         return binder
     }
 
+    inner class ServiceBinder: Binder() {
+        fun getService(): MusicService = this@MusicService
+    }
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val track = intent.getParcelableExtra<TrackEntity>(EXTRA_TRACK)
@@ -41,7 +44,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
         when (intent.action) {
             ACTION_PLAY -> {
                 playTrack(currentTrack.preview)
-                    startForeground(NOTIFICATION_ID, startNotification(currentTrack, true))
+                startNotification(currentTrack, true)
             }
             ACTION_PAUSE -> pauseTrack()
             ACTION_NEXT,
@@ -69,8 +72,9 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
         mediaPlayer?.start()
     }
 
-    private fun startNotification(track: TrackEntity, isPlaying: Boolean): Notification {
-        return notificationMusic(this, track, application, isPlaying)
+    private fun startNotification(track: TrackEntity, isPlaying: Boolean) {
+        val notification = notificationMusic(this, track, application, isPlaying)
+        startForeground(NOTIFICATION_ID, notification)
     }
 
     private fun playTrack(preview: String) {
@@ -108,7 +112,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
             setDataSource(track.preview)
             prepareAsync()
             setOnCompletionListener {
-                getActionIntent(ACTION_NEXT)
+                sendBroadcast(getActionIntent(ACTION_NEXT))
             }
             setOnPreparedListener(this@MusicService)
             startNotification(track, true)

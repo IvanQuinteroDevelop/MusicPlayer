@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -26,7 +28,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".data.service.MusicService" />
-    </application>
+        <service android:name=".data.service.MusicService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"/>
 
+        <receiver
+            android:name=".data.broadcast.BroadcastMusicReceiver"
+            android:exported="false"
+            android:enabled="true"
+            >
+            <intent-filter>
+                <action android:name="com.navi.musicplayerapp.ACTION_PLAY" />
+                <action android:name="com.navi.musicplayerapp.ACTION_PAUSE" />
+                <action android:name="com.navi.musicplayerapp.ACTION_NEXT" />
+                <action android:name="com.navi.musicplayerapp.ACTION_PREVIOUS" />
+                <action android:name="com.navi.musicplayerapp.ACTION_RESUME" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

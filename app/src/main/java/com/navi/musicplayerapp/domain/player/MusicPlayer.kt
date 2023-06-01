@@ -15,14 +15,26 @@ import javax.inject.Singleton
 class MusicPlayer @Inject constructor(private val context: Context) : PlayerTasks {
 
     private var currentTrack: TrackEntity? = null
-    private lateinit var tracks: List<TrackEntity?>
+    private var tracks: List<TrackEntity?> = emptyList()
+    private var musicService: MusicService? = null
     private var serviceBound = false
-    private var serviceConnection: ServiceConnection? = null
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            serviceBound = true
+            val binder = service as MusicService.ServiceBinder
+            musicService = binder.getService()
+        }
+        override fun onServiceDisconnected(name: ComponentName?) {
+            serviceBound = false
+            musicService = null
+        }
+    }
 
     override fun startPlayer() {
         val serviceIntent = Intent(context, MusicService::class.java)
-        serviceConnection = createServiceConnection()
-        context.bindService(serviceIntent, serviceConnection!!, Context.BIND_AUTO_CREATE)
+        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        context.startService(serviceIntent)
     }
 
     override fun setTracks(tracks: List<TrackEntity?>) {
@@ -71,11 +83,14 @@ class MusicPlayer @Inject constructor(private val context: Context) : PlayerTask
 
     override fun getPreviousTrack(track: TrackEntity?): TrackEntity? {
         val currentIndex = tracks.indexOf(track)
-        return if (currentIndex > 0) {
-            tracks[currentIndex - 1]
-        } else {
-            tracks.lastOrNull()
+        if (tracks.isNotEmpty()) {
+            return if (currentIndex > 0) {
+                tracks[currentIndex - 1]
+            } else {
+                tracks.lastOrNull()
+            }
         }
+        return null
     }
 
     override fun getTrackById(id: String): TrackEntity? {
@@ -84,28 +99,19 @@ class MusicPlayer @Inject constructor(private val context: Context) : PlayerTask
 
     override fun getNextTrack(track: TrackEntity?): TrackEntity? {
         val currentIndex = tracks.indexOf(track)
-        val nextIndex = (currentIndex + 1) % tracks.size
-        return tracks[nextIndex]
+        if (tracks.isNotEmpty()) {
+            val nextIndex = (currentIndex + 1) % tracks.size
+            return tracks[nextIndex]
+        }
+        return null
     }
 
     override fun stopPlayer() {
         if (serviceBound) {
             val intent = Intent(context, MusicService::class.java)
             context.stopService(intent)
-            context.unbindService(serviceConnection!!)
+            context.unbindService(serviceConnection)
             serviceBound = false
-        }
-    }
-
-    private fun createServiceConnection(): ServiceConnection {
-        return object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                serviceBound = true
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                serviceBound = false
-            }
         }
     }
 
@@ -115,4 +121,8 @@ class MusicPlayer @Inject constructor(private val context: Context) : PlayerTask
             putExtra(Constants.EXTRA_TRACK, currentTrack)
         }
     }
+
+    fun getCurrentTrack() = currentTrack
+
+    fun getCurrentTrackList() = tracks
 }
