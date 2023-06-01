@@ -6,9 +6,13 @@ import android.content.Intent
 import com.navi.musicplayerapp.data.utils.Constants
 import com.navi.musicplayerapp.domain.player.MusicPlayer
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class BroadcastMusicReceiver(private val musicPlayer: MusicPlayer): BroadcastReceiver() {
+class BroadcastMusicReceiver: BroadcastReceiver() {
+
+    @Inject
+    lateinit var musicPlayer: MusicPlayer
 
     override fun onReceive(context: Context?, intent: Intent?) {
         musicPlayer.let {

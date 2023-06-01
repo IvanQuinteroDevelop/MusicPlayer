@@ -43,7 +43,7 @@ class PlayerViewModel @Inject constructor(
     fun setTracks(tracks: List<TrackEntity>) {
         musicPlayer.setTracks(tracks)
         _currentTracks.value = tracks
-        _currentTrack.value = _currentTracks.value.first()
+        _currentTrack.value = _currentTracks.value.firstOrNull()
     }
 
     fun resumeTrack() {
